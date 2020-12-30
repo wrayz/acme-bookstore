@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Acme.BookStore.EntityFrameworkCore;
+using Acme.BookStore.MultiTenancy;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors;
@@ -10,10 +12,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Acme.BookStore.EntityFrameworkCore;
-using Acme.BookStore.MultiTenancy;
-using StackExchange.Redis;
 using Microsoft.OpenApi.Models;
+using StackExchange.Redis;
 using Volo.Abp;
 using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.AspNetCore.Mvc.UI.MultiTenancy;
@@ -42,6 +42,7 @@ namespace Acme.BookStore
     public class BookStoreHttpApiHostModule : AbpModule
     {
         private const string DefaultCorsPolicyName = "Default";
+        private const string MyAllowSpecificOrigins = "MyAllowSpecificOrigins";
 
         public override void ConfigureServices(ServiceConfigurationContext context)
         {
@@ -111,12 +112,11 @@ namespace Acme.BookStore
             context.Services.AddAbpSwaggerGenWithOAuth(
                 configuration["AuthServer:Authority"],
                 new Dictionary<string, string>
-                {
-                    {"BookStore", "BookStore API"}
+                { { "BookStore", "BookStore API" }
                 },
                 options =>
                 {
-                    options.SwaggerDoc("v1", new OpenApiInfo {Title = "BookStore API", Version = "v1"});
+                    options.SwaggerDoc("v1", new OpenApiInfo { Title = "BookStore API", Version = "v1" });
                     options.DocInclusionPredicate((docName, description) => true);
                 });
         }
@@ -163,9 +163,9 @@ namespace Acme.BookStore
                     builder
                         .WithOrigins(
                             configuration["App:CorsOrigins"]
-                                .Split(",", StringSplitOptions.RemoveEmptyEntries)
-                                .Select(o => o.RemovePostFix("/"))
-                                .ToArray()
+                            .Split(",", StringSplitOptions.RemoveEmptyEntries)
+                            .Select(o => o.RemovePostFix("/"))
+                            .ToArray()
                         )
                         .WithAbpExposedHeaders()
                         .SetIsOriginAllowedToAllowWildcardSubdomains()
@@ -173,6 +173,15 @@ namespace Acme.BookStore
                         .AllowAnyMethod()
                         .AllowCredentials();
                 });
+            });
+
+            context.Services.AddCors(options =>
+            {
+                options.AddPolicy(name: MyAllowSpecificOrigins,
+                    builder =>
+                    {
+                        builder.WithOrigins("http://localhost:4200");
+                    });
             });
         }
 
@@ -197,6 +206,7 @@ namespace Acme.BookStore
             app.UseVirtualFiles();
             app.UseRouting();
             app.UseCors(DefaultCorsPolicyName);
+            app.UseCors(MyAllowSpecificOrigins);
             app.UseAuthentication();
 
             if (MultiTenancyConsts.IsEnabled)
