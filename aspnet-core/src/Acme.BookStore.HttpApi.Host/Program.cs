@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -44,11 +45,35 @@ namespace Acme.BookStore
 
         internal static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
+            .ConfigureServices((context, services) =>
+            {
+                HostConfig.CertPath = context.Configuration["CertPath"];
+                HostConfig.CertPassword = context.Configuration["CertPassword"];
+            })
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                var host = Dns.GetHostEntry("localhost");
+
+                webBuilder.ConfigureKestrel(opt =>
                 {
-                    webBuilder.UseStartup<Startup>();
-                })
-                .UseAutofac()
-                .UseSerilog();
+                    // Specific ip, port and certificate
+                    Log.Information("ConfigureKestrel");
+                    opt.Listen(host.AddressList[0], 9842);
+                    opt.Listen(host.AddressList[0], 9843, listopt =>
+                    {
+                        listopt.UseHttps(HostConfig.CertPath, HostConfig.CertPassword);
+                    });
+                });
+
+                webBuilder.UseStartup<Startup>();
+            })
+            .UseAutofac()
+            .UseSerilog();
+    }
+
+    public static class HostConfig
+    {
+        public static string CertPath { get; set; }
+        public static string CertPassword { get; set; }
     }
 }
