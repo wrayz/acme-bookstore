@@ -18,7 +18,7 @@ export const environment = {
   },
   apis: {
     default: {
-      url: 'https://localhost:44389',
+      url: 'https://localhost:9843',
       rootNamespace: 'Acme.BookStore',
     },
   },

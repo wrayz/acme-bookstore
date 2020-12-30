@@ -57,8 +57,8 @@ namespace Acme.BookStore
                 {
                     // Specific ip, port and certificate
                     Log.Information("ConfigureKestrel");
-                    opt.Listen(host.AddressList[0], 9842);
-                    opt.Listen(host.AddressList[0], 9843, listopt =>
+                    opt.Listen(host.AddressList[0], 9840);
+                    opt.Listen(host.AddressList[0], 9841, listopt =>
                     {
                         listopt.UseHttps(HostConfig.CertPath, HostConfig.CertPassword);
                     });
