@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Acme.BookStore.Books;
 using Acme.BookStore.Users;
+using Microsoft.EntityFrameworkCore;
 using Volo.Abp.Data;
 using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore.Modeling;
@@ -20,14 +21,14 @@ namespace Acme.BookStore.EntityFrameworkCore
     [ConnectionStringName("Default")]
     public class BookStoreDbContext : AbpDbContext<BookStoreDbContext>
     {
+        public DbSet<Book> Books { get; set; }
         public DbSet<AppUser> Users { get; set; }
 
         /* Add DbSet properties for your Aggregate Roots / Entities here.
          * Also map them inside BookStoreDbContextModelCreatingExtensions.ConfigureBookStore
          */
 
-        public BookStoreDbContext(DbContextOptions<BookStoreDbContext> options)
-            : base(options)
+        public BookStoreDbContext(DbContextOptions<BookStoreDbContext> options) : base(options)
         {
 
         }
@@ -41,7 +42,7 @@ namespace Acme.BookStore.EntityFrameworkCore
             builder.Entity<AppUser>(b =>
             {
                 b.ToTable(AbpIdentityDbProperties.DbTablePrefix + "Users"); //Sharing the same table "AbpUsers" with the IdentityUser
-                
+
                 b.ConfigureByConvention();
                 b.ConfigureAbpUser();
 
