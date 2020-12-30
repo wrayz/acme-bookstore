@@ -1,10 +1,10 @@
 ﻿{
   "iisSettings": {
-    "windowsAuthentication": false, 
+    "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "https://localhost:44389",
-      "sslPort": 44389
+      "applicationUrl": "https://localhost:9843",
+      "sslPort": 9843
     }
   },
   "profiles": {
@@ -18,7 +18,7 @@
     "Acme.BookStore.HttpApi.Host": {
       "commandName": "Project",
       "launchBrowser": true,
-      "applicationUrl": "https://localhost:44389",
+      "applicationUrl": "https://localhost:9843",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
